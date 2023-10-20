@@ -63,5 +63,10 @@ class Student extends Model
         return $this->hasMany(DurationPayment::class);
     }
 
+    public function deposit_slips()
+    {
+        return $this->hasMany(DepositSlip::class);
+    }
+
 
 }
