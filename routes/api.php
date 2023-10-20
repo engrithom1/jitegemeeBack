@@ -19,6 +19,7 @@ use App\Http\Controllers\AdmissionTypeController;
 use App\Http\Controllers\EntryTypeController;
 use App\Http\Controllers\HealthStatusController;
 use App\Http\Controllers\FeeController;
+use App\Http\Controllers\FeePaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -112,6 +113,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     ///parent
     Route::post('/create-parent',[ParentController::class,'store']);
     Route::post('/search-parent',[ParentController::class,'show']);
+
+    ///feeepayments 
+    Route::post('/search_student_index_no',[FeePaymentController::class,'getStudentByIndexNo']);
+    Route::post('/check_required_fees',[FeePaymentController::class,'checkRequiredFees']);
 });
 
 Route::controller(AuthController::class)->group(function(){

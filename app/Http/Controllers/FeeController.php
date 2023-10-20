@@ -36,8 +36,6 @@ class FeeController extends Controller
        $validator = Validator::make($request->all(),[
         'fee' => ['required', 'string', 'max:255', 'unique:fees'],
         'amount' => 'required',
-        'min_amount' => 'required',
-        'duration' => 'required',
        ]);
 
        if($validator->fails()){
@@ -65,8 +63,8 @@ class FeeController extends Controller
             'user_id' => $user_id,
             'fee' => $fee,
             'amount' => $amount,
-            'min_amount' => $min_amount,
-            'duration' => $duration,
+            'min_amount' => 0,
+            'duration' => 0,
         ];
 
         $log = [
@@ -112,8 +110,7 @@ class FeeController extends Controller
        $validator = Validator::make($request->all(),[
         'fee' => ['required', 'string', 'max:255'],
         'amount' => 'required',
-        'min_amount' => 'required',
-        'duration' => 'required',
+        
        ]);
 
        if($validator->fails()){
@@ -143,8 +140,8 @@ class FeeController extends Controller
                 'user_id' => $user_id,
                 'fee' => $fee,
                 'amount' => $amount,
-                'min_amount' => $min_amount,
-                'duration' => $duration,
+                'min_amount' => 0,
+                'duration' => 0,
             ];
 
             $log = [

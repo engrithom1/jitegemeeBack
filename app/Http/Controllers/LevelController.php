@@ -16,7 +16,8 @@ class LevelController extends Controller
     {
         
         try {
-            return Level::limit(6)->get();
+         $lvs =  Level::skip(1)->take(6)->get();
+         return $lvs;
         } catch (\Throwable $th) {
             //throw $th;
             return $th;
