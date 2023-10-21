@@ -17,6 +17,7 @@ class CreateDepositSlipsTable extends Migration
             $table->id();
             $table->string('year');
             $table->decimal('amount');
+            $table->string('deposit_code');
             $table->mediumText('description');
             $table->foreignId('student_id')->constrained();
             $table->foreignId('user_id')->constrained();

@@ -11,7 +11,7 @@ class DepositSlip extends Model
 
     protected $table = 'deposit_slips';
     protected $primaryKey = 'id';
-    protected $fillable = ['student_id','user_id','year','amount','transation_no','description','status'];
+    protected $fillable = ['student_id','user_id','year','amount','deposit_code','description','status'];
 
     public function user()
     {

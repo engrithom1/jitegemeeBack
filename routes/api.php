@@ -20,6 +20,9 @@ use App\Http\Controllers\EntryTypeController;
 use App\Http\Controllers\HealthStatusController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\FeePaymentController;
+use App\Http\Controllers\DepositSlipController;
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -108,16 +111,21 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/create-student',[StudentController::class,'store']);
     Route::post('/class_students',[StudentController::class,'classStudents']);
     Route::post('/reflesh_students',[StudentController::class,'refleshStudents']);
+    Route::post('/search_student_index_no',[studentController::class,'getStudentByIndexNo']);
     ///staff
     Route::post('/create-staff',[StaffController::class,'store']);
     ///parent
     Route::post('/create-parent',[ParentController::class,'store']);
     Route::post('/search-parent',[ParentController::class,'show']);
 
-    ///feeepayments 
-    Route::post('/search_student_index_no',[FeePaymentController::class,'getStudentByIndexNo']);
+    ///feeepayments  addFeeToStudent /add_deposit_slip
     Route::post('/check_required_fees',[FeePaymentController::class,'checkRequiredFees']);
+    Route::post('/add_fee_to_student',[FeePaymentController::class,'addFeeToStudent']);
+    Route::post('/add_payment_to_student',[FeePaymentController::class,'addPaymentToStudent']);
+    ////deposit slip
+    Route::post('/add_deposit_slip',[DepositSlipController::class,'addDepositSlip']);
 });
+
 
 Route::controller(AuthController::class)->group(function(){
     Route::post('login','login');
