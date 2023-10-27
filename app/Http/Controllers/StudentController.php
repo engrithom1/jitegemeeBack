@@ -30,6 +30,33 @@ class StudentController extends Controller
         //
     }
 
+           /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getStudentInfo(Request $request)
+    {
+        $index_no = $request->index_no;
+
+        $student = DB::table('students')
+                          ->join('student_statuses','student_statuses.id','=','students.student_status_id')
+                          ->select('students.id','students.index_no','students.first_name','students.middle_name','students.last_name','students.classroom_id','students.level_id','students.accademic_year',
+                          'student_statuses.status_name','students.phone','students.photo','students.home_address','students.nationality','students.birth_date')
+                          ->where(['students.index_no' => $index_no])
+                          ->first();
+
+        $response = [
+            'success' => true,
+            'message' => "Class added Successfuly",
+            'student'  => $student,
+        ];
+
+        return response()->json($response, 200);
+    } 
+
+
        /**
      * Store a newly created resource in storage.
      *
@@ -243,6 +270,7 @@ class StudentController extends Controller
                 'nationality' => $request->nationality,
                 'email' => $email,
                 'student_status_id' => 1,
+                'parent_status_id' => $request->parent_status_id,
 
             ];
 

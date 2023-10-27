@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\User;
 use App\Models\Staff;
+use App\Models\Student;
 use DB;
 
 class AuthController extends Controller
@@ -29,6 +30,16 @@ class AuthController extends Controller
                     $uza = Staff::where('staff.index_no',$index_no)
                     ->join('users','staff.index_no', '=', 'users.index_no')
                     ->select('staff.photo','users.username','users.id','users.role_id')
+                    ->get();
+
+                    $data['user'] = $uza[0];
+                }
+
+                if($type == "student"){
+
+                    $uza = Student::where('students.index_no',$index_no)
+                    ->join('users','students.index_no', '=', 'users.index_no')
+                    ->select('students.photo','users.username','users.id','users.role_id')
                     ->get();
 
                     $data['user'] = $uza[0];

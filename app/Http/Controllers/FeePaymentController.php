@@ -20,10 +20,71 @@ use App\Models\FeePayment;
 use App\Models\DurationPayment;
 use App\Models\FeeBalance;
 use App\Models\DepositSlip;
+use App\Models\RemoveFee;
 use DB;
 
 class FeePaymentController extends Controller
 {
+     /**
+    * Store a newly created resource in storage.
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return \Illuminate\Http\Response
+    */
+   public function removeFeeRequest(Request $request)
+   {
+
+       ///validatio goes here
+       $validator = Validator::make($request->all(),[
+        'fee_payment_id' => ['required', 'integer', 'max:255','unique:remove_fees'],
+       ]);
+
+       if($validator->fails()){
+        $response = [
+            'success' => false,
+            'message' => "Request for this Fee was aleady been sent, so wait for approve"
+        ];
+        return response()->json($response, 200);
+
+        }else{
+
+            $amount = $request->amount;
+            $paid_amount = $request->paid_amount;
+            $fee_id = $request->fee_id;
+            $fee_payment_id = $request->fee_payment_id;
+            $fee_name = $request->fee_name;
+            $role_id = $request->role_id;
+            $student_id = $request->student_id;
+            $user_id = $request->user_id;
+            $year = $request->year;
+            $reason = $request->reason;
+
+            if($role_id < 3){
+                return response()->json(['success' => false,
+                'message' => ['You not allowed to make this action']], 200); 
+            }
+
+            $data = [
+                'year' => $year,
+                'fee_name' => $fee_name,
+                'reason' => $reason,
+                'action' => 'not yet',
+                'actionable_id' => 0,
+                'amount' => $amount,
+                'paid_amount' => $paid_amount,
+                'student_id' => $student_id,
+                'user_id' => $user_id,
+                'fee_id' => $fee_id,
+                'fee_payment_id' => $fee_payment_id,
+                'status' => 0,
+            ];
+
+            RemoveFee::create($data);
+
+            return response()->json(['success' => true,
+            'message' => ['Request sent successfully, Fee will be removed after being approved']], 200);
+        }    
+   }
     /**
     * Store a newly created resource in storage.
     *
@@ -73,7 +134,7 @@ class FeePaymentController extends Controller
 
        DurationPayment::create($row_arr);
        FeeBalance::where(['student_id' => $student_id])->update(['amount' => $balance]);
-       FeePayment::where(['student_id' => $student_id,'level_id' => $level_id,'year' => $year,'fee_id'=>$fee_id])->update(['paid_amount' => $paid_amount,'valid_to' => $valid_to]);
+       FeePayment::where(['student_id' => $student_id,'level_id' => $level_id,'year' => $year,'fee_id'=>$fee_id])->update(['paid_amount' => $paid_amount,'valid_to' => $valid_to,'status'=>1]);
 
        $student_balance = FeeBalance::where(['student_id' => $student_id])->get();
 

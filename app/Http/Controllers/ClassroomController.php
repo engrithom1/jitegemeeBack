@@ -24,7 +24,7 @@ class ClassroomController extends Controller
         try {
             return Classroom::orderBy('classrooms.level_id','asc')
             ->join('levels','classrooms.level_id', '=', 'levels.id')
-            ->select('classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.roomnumber','classrooms.students','levels.level')
+            ->select('classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.level_id','classrooms.roomnumber','classrooms.students','levels.level')
             ->withCount('students')
             ->get();
         } catch (\Throwable $th) {

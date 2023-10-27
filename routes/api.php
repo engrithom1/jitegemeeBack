@@ -21,7 +21,9 @@ use App\Http\Controllers\HealthStatusController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\FeePaymentController;
 use App\Http\Controllers\DepositSlipController;
-
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\DashbordController;
+use App\Http\Controllers\ParentStatusController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +38,17 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/clear', function() {
+
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('config:cache');
+    Artisan::call('view:clear');
+ 
+    return "Cleared!";
+ 
+ });
 
 ///depat
 Route::get('/departments',[DepartmentController::class,'index']);
@@ -71,6 +84,10 @@ Route::get('/grades',[GradeController::class,'index']);
 Route::get('/fees',[FeeController::class,'index']);
 //parents
 Route::get('/parents',[ParentController::class,'index']);
+//parent status
+Route::get('/parent-status',[ParentStatusController::class,'index']);
+/////dashbord-datas
+Route::post('/dashbord-datas',[DashbordController::class,'dashbordDatas']);
 
 
 ////this Routes need authentication token to gooo
@@ -107,23 +124,29 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/create-fee',[FeeController::class,'store']);
     Route::post('/delete-fee',[FeeController::class,'destroy']);
     Route::post('/update-fee',[FeeController::class,'update']);
-    ///student
+    ///student 
     Route::post('/create-student',[StudentController::class,'store']);
     Route::post('/class_students',[StudentController::class,'classStudents']);
     Route::post('/reflesh_students',[StudentController::class,'refleshStudents']);
     Route::post('/search_student_index_no',[studentController::class,'getStudentByIndexNo']);
+    Route::post('/search_student_info',[studentController::class,'getStudentInfo']);
     ///staff
     Route::post('/create-staff',[StaffController::class,'store']);
     ///parent
     Route::post('/create-parent',[ParentController::class,'store']);
     Route::post('/search-parent',[ParentController::class,'show']);
 
-    ///feeepayments  addFeeToStudent /add_deposit_slip
+    ///feeepayments  addFeeToStudent 
     Route::post('/check_required_fees',[FeePaymentController::class,'checkRequiredFees']);
     Route::post('/add_fee_to_student',[FeePaymentController::class,'addFeeToStudent']);
     Route::post('/add_payment_to_student',[FeePaymentController::class,'addPaymentToStudent']);
+    Route::post('/remove_fee_request',[FeePaymentController::class,'removeFeeRequest']);
     ////deposit slip
     Route::post('/add_deposit_slip',[DepositSlipController::class,'addDepositSlip']);
+    ///atendance /attendance_records
+    Route::post('/get_class_students',[AttendanceController::class,'getClassStudents']);
+    Route::post('/submit_attendance',[AttendanceController::class,'addAttendance']);
+    Route::post('/attendance_records',[AttendanceController::class,'getAttendanceRecords']);
 });
 
 

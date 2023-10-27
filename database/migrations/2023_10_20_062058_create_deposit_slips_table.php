@@ -16,7 +16,7 @@ class CreateDepositSlipsTable extends Migration
         Schema::create('deposit_slips', function (Blueprint $table) {
             $table->id();
             $table->string('year');
-            $table->decimal('amount');
+            $table->decimal('amount',17,2);
             $table->string('deposit_code');
             $table->mediumText('description');
             $table->foreignId('student_id')->constrained();

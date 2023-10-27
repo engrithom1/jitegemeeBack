@@ -11,7 +11,7 @@ class Student extends Model
 
     protected $table = 'students';
     protected $primaryKey = 'id';
-    protected $fillable = ['student_status_id','hearth','admission','entry','school_from','relation_to','transfer_reason','parent_id','user_id','level_id','classroom_id','accademic_year','nationality','birth_date','behavior','first_name','middle_name','last_name','gender','phone','photo','home_address','email','index_no'];
+    protected $fillable = ['parent_status_id','student_status_id','hearth','admission','entry','school_from','relation_to','transfer_reason','parent_id','user_id','level_id','classroom_id','accademic_year','nationality','birth_date','behavior','first_name','middle_name','last_name','gender','phone','photo','home_address','email','index_no'];
 
     public function user()
     {
@@ -36,6 +36,11 @@ class Student extends Model
     public function student_status()
     {
         return $this->belongsTo(Student_status::class);
+    }
+
+    public function parent_statuses()
+    {
+        return $this->belongsTo(ParentStatus::class);
     }
 
     public function classroom()

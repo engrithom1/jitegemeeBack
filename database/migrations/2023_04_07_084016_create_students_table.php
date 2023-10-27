@@ -35,6 +35,7 @@ class CreateStudentsTable extends Migration
             $table->string('hearth');
             $table->string('index_no');
             $table->foreignId('student_status_id')->constrained();
+            $table->foreignId('parent_status_id')->constrained();
             $table->foreignId('classroom_id')->constrained();
             $table->foreignId('level_id')->constrained();
             $table->foreignId('parent_id')->constrained();
