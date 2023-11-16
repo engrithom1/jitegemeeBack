@@ -3,38 +3,20 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
 
-use App\Models\Subject;
+use App\Models\Course;
+use App\Models\Classroom;
 use Illuminate\Http\Request;
 
-class SubjectController extends Controller
+class CourseController extends Controller
 {
-    /**
+      /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        return Subject::all();
+    public function index(){
+        return Course::get();
     }
-
-   
-     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function classSubjects(Request $request)
-    {
-        $subs_idz = $request->subs_idz;
-
-        $subs_idz = explode(',', $subs_idz);
-
-        return Subject::whereIn('id' ,$subs_idz)
-                      ->select('id','subject','code')->get();
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -43,10 +25,10 @@ class SubjectController extends Controller
      */
     public function store(Request $request)
     {
-        ///validatio goes here
+         ///validatio goes here
        $validator = Validator::make($request->all(),[
-        'subject' => ['required', 'string', 'max:255', 'unique:subjects'],
-        'code' => ['required', 'string', 'max:255', 'unique:subjects'],
+        'coursename' => ['required', 'string', 'max:255', 'unique:courseS'],
+        'subjects'  => 'required'
        ]);
 
        if($validator->fails()){
@@ -60,8 +42,9 @@ class SubjectController extends Controller
 
             $user_id = $request->user_id;
             $role_id = $request->role_id;
-            $subject = $request->subject;
-            $code = $request->code;
+            $coursename = $request->coursename;
+            $subjects = $request->subjects;
+            $subject_names = $request->subject_names;
             
             if($role_id < 3){
                 return response()->json(['success' => false,
@@ -70,43 +53,32 @@ class SubjectController extends Controller
 
             $data = [
                 'user_id' => $user_id,
-                'subject' => $subject,
-                'code' => $code,
+                'coursename' => $coursename,
+                'subjects' => $subjects, 
+                'subject_names' => $subject_names,
             ];
 
             $log = [
                 'user_id' => $user_id,
-                'log' => 'Create the subject by the name of '.$subject
+                'log' => 'Create the course by the name of '.$coursename
             ];
 
-            Subject::create($data);
+            Course::create($data);
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $subjects = Subject::all();
+            $courses = Course::get();
 
             $response = [
                 'success' => true,
-                'message' => "subject added Successfuly",
-                'subjects'   => $subjects
+                'message' => "Course added Successfuly",
+                'courses'   => $courses
             ];
 
             return response()->json($response, 200);
         }
-
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
+     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -114,11 +86,10 @@ class SubjectController extends Controller
      */
     public function update(Request $request)
     {
-        $subject_id = $request->subject_id;
-         ///validatio goes here
+        ///validatio goes here
        $validator = Validator::make($request->all(),[
-        'subject' => 'required', 'string', 'max:255', 'unique:subjects,'.$subject_id,
-        'code' => 'required', 'string', 'max:255', 'unique:subjects,'.$subject_id,
+        'coursename' => ['required', 'string', 'max:255'],
+        'subjects'  => 'required',
        ]);
 
        if($validator->fails()){
@@ -131,11 +102,13 @@ class SubjectController extends Controller
         }else{
 
             $user_id = $request->user_id;
-            $role_id = $request->user_id;
-            $subject = $request->subject;
-            $code = $request->code;
-            $og_subject = $request->og_subject;
-            
+            $role_id = $request->role_id;
+            $coursename = $request->coursename;
+            $subject_names = $request->subject_names;
+            $subjects = $request->subjects;
+            $course_id = $request->course_id;
+            $og_coursename = $request->og_coursename;
+
             if($role_id < 3){
                 return response()->json(['success' => false,
                 'message' => ['You not allowed to make this action']], 200); 
@@ -143,31 +116,32 @@ class SubjectController extends Controller
 
             $data = [
                 'user_id' => $user_id,
-                'subject' => $subject,
-                'code' => $code,
+                'coursename' => $coursename,
+                'subject_names' => $subject_names,
+                'subjects' => $subjects,
             ];
 
             $log = [
                 'user_id' => $user_id,
-                'log' => 'subject edited from the name of '.$og_subject.' to '.$subject
+                'log' => 'Course edited from the name of '.$og_coursename.' to '.$coursename
             ];
 
-            Subject::where(['id'=>$subject_id])->update($data);
+            Course::where(['id'=>$course_id])->update($data);
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $subjects = Subject::all();
+            $courses = Course::get();
 
             $response = [
                 'success' => true,
-                'message' => "Subject edited Successfuly",
-                'subjects'   => $subjects
+                'message' => "Course edited Successfuly",
+                'courses'   => $courses
             ];
 
             return response()->json($response, 200);
         }
     }
 
-    /**
+      /**
      * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -179,8 +153,8 @@ class SubjectController extends Controller
 
             $user_id = $request->user_id;
             $role_id = $request->role_id;
-            $subject_id = $request->subject_id;
-            $subject = $request->subject;
+            $class_id = $request->id;
+            $coursename = $request->coursename;
         
             if($role_id < 4){
                 return response()->json(['success' => false,
@@ -189,18 +163,18 @@ class SubjectController extends Controller
 
             $log = [
                 'user_id' => $user_id,
-                'log' => 'Delete the subject by the name of '.$subject.', its id was '.$subject_id,
+                'log' => 'Delete the Course by the name of '.$coursename.', its id was '.$class_id,
             ];
     
-            Subject::where(['id' => $subject_id])->delete();
+            Course::where(['id' => $class_id])->delete();
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $subjects = Subject::all();
+            $courses = Course::get();
     
             $response = [
                 'success' => true,
-                'message' => "Subject deleted Successfuly",
-                'subjects'   => $subjects
+                'message' => "Course deleted Successfuly",
+                'courses'   => $courses
             ];
     
             return response()->json($response, 200);
@@ -211,4 +185,5 @@ class SubjectController extends Controller
                 'message' => ['Database or Server Errors']], 200);
         }
     }
+
 }

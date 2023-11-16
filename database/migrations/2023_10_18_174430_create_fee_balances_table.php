@@ -15,7 +15,7 @@ class CreateFeeBalancesTable extends Migration
     {
         Schema::create('fee_balances', function (Blueprint $table) {
             $table->id();
-            $table->decimal('amount');
+            $table->decimal('amount',17,2);
             $table->foreignId('student_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->timestamps();

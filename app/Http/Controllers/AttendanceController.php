@@ -16,6 +16,7 @@ use App\Models\Parento;
 use App\Models\Student;
 use App\Models\ExamMarks;
 use App\Models\Attendance;
+use App\Models\SessionAtendance;
 use DB;
 
 class AttendanceController extends Controller
@@ -85,9 +86,12 @@ class AttendanceController extends Controller
     public function addAttendance(Request $request)
     {
         $role_id = $request->role_id;
+        $subject_id = $request->subject_id;
         $date_no = $request->data_att;
         $classroom_id = $request->class_id;
-        $att = $request->att;
+        $class_att = $request->class_att;
+        $session_att = $request->session_att;
+        $att_type = $request->att_type;
 
         if($role_id < 2){
             return response()->json(['success' => false,
@@ -95,17 +99,54 @@ class AttendanceController extends Controller
         }
 
         $fnd = Attendance::where(['classroom_id' => $classroom_id, 'date_no' => $date_no])->get();
-
-        if(count($fnd) != 0){
-            return response()->json(['success' => false,
-            'message' => ['Attendence is aleady been created for a particular Date']], 200); 
-        }else{
-
-            DB::table('attendances')->insert($att);
-
-            return response()->json(['success' => true,
-            'message' => ['Attendence has been submitted successfully']], 200);
+        $att_ss = SessionAtendance::where(['classroom_id' => $classroom_id,'subject_id' => $subject_id, 'date_no' => $date_no])->get();
+        
+        ///session attendance
+        if($att_type == 1){
+            if(count($att_ss) != 0){
+                return response()->json(['success' => false,
+                'message' => ['Attendence is aleady been created for a particular Date']], 200); 
+            }else{
+    
+                DB::table('session_atendances')->insert($session_att);
+    
+                return response()->json(['success' => true,
+                'message' => ['Attendence has been submitted successfully']], 200);
+            }
         }
+        ////class attendance
+        if($att_type == 2){
+            if(count($fnd) != 0){
+                return response()->json(['success' => false,
+                'message' => ['Attendence is aleady been created for a particular Date']], 200); 
+            }else{
+    
+                DB::table('attendances')->insert($class_att);
+    
+                return response()->json(['success' => true,
+                'message' => ['Attendence has been submitted successfully']], 200);
+            }
+        }
+
+        if($att_type == 3){
+
+                if(count($fnd) != 0 && count($att_ss) != 0){
+                    return response()->json(['success' => false,
+                    'message' => ['Attendence is aleady been created for a particular Date']], 200); 
+                }elseif(count($fnd) != 0 || count($att_ss) != 0){
+                    return response()->json(['success' => false,
+                    'message' => ['One of Attendence is aleady been taken is better to be specific']], 200); 
+                }else{
+        
+                    DB::table('attendances')->insert($class_att);
+                    DB::table('session_atendances')->insert($session_att);
+        
+                    return response()->json(['success' => true,
+                    'message' => ['Both Attendence has been submitted successfully']], 200);
+                }
+
+        }
+        
        
     }
 }

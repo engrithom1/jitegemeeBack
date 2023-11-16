@@ -145,7 +145,7 @@ class FeePaymentController extends Controller
 
         $response = [
             'success' => true,
-            'message' => "Class added Successfuly",
+            'message' => "Succesfully Paid..",
             'feepay'  => $feepay,
             'student_balance' =>  $student_balance[0]
         ];

@@ -11,7 +11,7 @@ class Classroom extends Model
 
     protected $table = 'classrooms';
     protected $primaryKey = 'id';
-    protected $fillable = ['classname','roomnumber','fees','subjects','students','user_id','level_id'];
+    protected $fillable = ['classname','roomnumber','course_id','fees','subjects','students','user_id','level_id','teacher_id'];
 
     public function user()
     {

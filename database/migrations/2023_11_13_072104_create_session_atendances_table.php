@@ -4,25 +4,26 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDurationPaymentsTable extends Migration
+class CreateSessionAtendancesTable extends Migration
 {
     /**
      * Run the migrations.
-     *
+     * 'subject_id'
      * @return void
      */
     public function up()
     {
-        Schema::create('duration_payments', function (Blueprint $table) {
+        Schema::create('session_atendances', function (Blueprint $table) {
             $table->id();
             $table->string('year');
-            $table->decimal('amount',17,2);
+            $table->string('date_att');
+            $table->integer('date_no');
             $table->foreignId('student_id')->constrained();
             $table->foreignId('classroom_id')->constrained();
+            $table->foreignId('subject_id')->constrained();
             $table->foreignId('level_id')->constrained();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('fee_id')->constrained();
-            $table->foreignId('fee_payment_id')->constrained();
+            $table->integer('attend')->default(0);
             $table->timestamps();
         });
     }
@@ -34,6 +35,6 @@ class CreateDurationPaymentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('duration_payments');
+        Schema::dropIfExists('session_atendances');
     }
 }

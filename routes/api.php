@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ParentController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\RoleController;
@@ -74,13 +75,17 @@ Route::get('/active_exams',[ExamController::class,'activeExams']);
 Route::get('/levels',[LevelController::class,'index']);
 ////subject
 Route::get('/subjects',[SubjectController::class,'index']);
-//classes
+////class_subject
+Route::post('/class_subjects',[SubjectController::class,'classSubjects']);
+//classes 
 Route::get('/class',[ClassroomController::class,'index']);
-//classes
+Route::get('/class-teachers',[ClassroomController::class,'classTeachers']);
 Route::post('/class_level',[ClassroomController::class,'classLevel']);
+//courses
+Route::get('/courses',[CourseController::class,'index']);
 //grade
 Route::get('/grades',[GradeController::class,'index']);
-//feee
+//feee 
 Route::get('/fees',[FeeController::class,'index']);
 //parents
 Route::get('/parents',[ParentController::class,'index']);
@@ -88,6 +93,9 @@ Route::get('/parents',[ParentController::class,'index']);
 Route::get('/parent-status',[ParentStatusController::class,'index']);
 /////dashbord-datas
 Route::post('/dashbord-datas',[DashbordController::class,'dashbordDatas']);
+/////students /pending_students
+Route::get('/pending_students',[StudentController::class,'pendingStudents']);
+
 
 
 ////this Routes need authentication token to gooo
@@ -116,6 +124,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/create-class',[ClassroomController::class,'store']);
     Route::post('/delete-class',[ClassroomController::class,'destroy']);
     Route::post('/update-class',[ClassroomController::class,'update']);
+    ////course
+    Route::post('/create-course',[CourseController::class,'store']);
+    Route::post('/delete-course',[CourseController::class,'destroy']);
+    Route::post('/update-course',[CourseController::class,'update']);
     ////grades
     Route::post('/create-grade',[GradeController::class,'store']);
     Route::post('/delete-grade',[GradeController::class,'destroy']);
@@ -129,7 +141,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/class_students',[StudentController::class,'classStudents']);
     Route::post('/reflesh_students',[StudentController::class,'refleshStudents']);
     Route::post('/search_student_index_no',[studentController::class,'getStudentByIndexNo']);
-    Route::post('/search_student_info',[studentController::class,'getStudentInfo']);
+    Route::post('/search_student_personal_info',[studentController::class,'getStudentPersonalInfo']);
     ///staff
     Route::post('/create-staff',[StaffController::class,'store']);
     ///parent

@@ -24,6 +24,7 @@ class CreateStudentsTable extends Migration
             $table->string('home_address');
             $table->string('email')->default('no email');
             $table->string('accademic_year');
+            $table->string('regist_year');
             $table->string('nationality');
             $table->string('birth_date');
             $table->string('behavior')->default('no comment');
@@ -34,6 +35,7 @@ class CreateStudentsTable extends Migration
             $table->string('admission');
             $table->string('hearth');
             $table->string('index_no');
+            $table->string('prem_no');
             $table->foreignId('student_status_id')->constrained();
             $table->foreignId('parent_status_id')->constrained();
             $table->foreignId('classroom_id')->constrained();

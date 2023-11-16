@@ -9,22 +9,38 @@ use Illuminate\Http\Request;
 
 class ClassroomController extends Controller
 {
+      /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function classTeachers()
+    {
+       
+        try {
+            return Classroom::orderBy('classrooms.level_id','asc')
+            ->join('levels','classrooms.level_id', '=', 'levels.id')
+            ->join('users','classrooms.teacher_id', '=', 'users.id')
+            ->join('staff','staff.index_no', '=', 'users.index_no')
+            ->select('staff.initial','staff.first_name','staff.last_name','classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.level_id','classrooms.roomnumber','classrooms.students','levels.level','classrooms.teacher_id','classrooms.course_id')
+            ->withCount('students')
+            ->get();
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $th;
+        }
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        /*$students = Student::where('classroom_id',$class_id)
-                        ->withCount(['exam_marks'=> function($query) use($exam_id,$year,$class_id){
-                          $query->where(['exam_marks.exam_id'=> $exam_id, 'exam_marks.year' => $year]);
-                        }])->get();*/
+    public function index(){
 
         try {
             return Classroom::orderBy('classrooms.level_id','asc')
             ->join('levels','classrooms.level_id', '=', 'levels.id')
-            ->select('classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.level_id','classrooms.roomnumber','classrooms.students','levels.level')
+            ->select('classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.level_id','classrooms.roomnumber','classrooms.students','levels.level','classrooms.teacher_id','classrooms.course_id')
             ->withCount('students')
             ->get();
         } catch (\Throwable $th) {
@@ -72,6 +88,7 @@ class ClassroomController extends Controller
         'subjects'  => 'required',
         'fees'  => 'required',
         'level_id'  => 'required',
+        'teacher_id'  => 'required',
        ]);
 
        if($validator->fails()){
@@ -85,6 +102,8 @@ class ClassroomController extends Controller
 
             $user_id = $request->user_id;
             $role_id = $request->role_id;
+            $teacher_id = $request->teacher_id;
+            $course_id = $request->course_id;
             $level_id = $request->level_id;
             $classname = $request->classname;
             $roomnumber = $request->roomnumber;
@@ -96,9 +115,19 @@ class ClassroomController extends Controller
                 'message' => ['You not allowed to make this action']], 200); 
             }
 
+            ///check teacher
+            $teacher = Classroom::where(['teacher_id' => $teacher_id])->get();
+
+            if(count($teacher) != 0){
+                return response()->json(['success' => false,
+                'message' => ["Teacher can't have more than one class"]], 200); 
+            }
+
             $data = [
                 'user_id' => $user_id,
                 'classname' => $classname,
+                'teacher_id' => $teacher_id,
+                'course_id' => $course_id,
                 'roomnumber' => $roomnumber,
                 'fees' => $fees,
                 'subjects' => $subjects,
@@ -116,7 +145,10 @@ class ClassroomController extends Controller
 
             $claszs = Classroom::orderBy('classrooms.level_id','asc')
             ->join('levels','classrooms.level_id', '=', 'levels.id')
-            ->select('classrooms.id','classrooms.classname','classrooms.roomnumber','classrooms.students','levels.level')
+            ->join('users','classrooms.teacher_id', '=', 'users.id')
+            ->join('staff','staff.index_no', '=', 'users.index_no')
+            ->select('staff.initial','staff.first_name','staff.last_name','classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.level_id','classrooms.roomnumber','classrooms.students','levels.level','classrooms.teacher_id','classrooms.course_id')
+            ->withCount('students')
             ->get();
 
             $response = [
@@ -154,6 +186,8 @@ class ClassroomController extends Controller
         'roomnumber'  => 'required',
         'fees'  => 'required',
         'subjects'  => 'required',
+        'teacher_id'  => 'required',
+        'course_id'  => 'required',
        ]);
 
        if($validator->fails()){
@@ -167,12 +201,23 @@ class ClassroomController extends Controller
 
             $user_id = $request->user_id;
             $role_id = $request->role_id;
+            $teacher_id = $request->teacher_id;
+            $course_id = $request->course_id;
             $classname = $request->classname;
             $roomnumber = $request->roomnumber;
             $fees = $request->fees;
             $subjects = $request->subjects;
             $class_id = $request->class_id;
             $og_classname = $request->og_classname;
+
+            $teacher = Classroom::where(['teacher_id' => $teacher_id])
+                                ->where('id', '!=', $class_id)->get();
+
+            if(count($teacher) != 0){
+                return response()->json(['success' => false,
+                'message' => ["Teacher can't have more than one class"]], 200); 
+            }
+
             
             if($role_id < 3){
                 return response()->json(['success' => false,
@@ -182,6 +227,8 @@ class ClassroomController extends Controller
             $data = [
                 'user_id' => $user_id,
                 'classname' => $classname,
+                'teacher_id' => $teacher_id,
+                'course_id' => $course_id,
                 'roomnumber' => $roomnumber,
                 'fees' => $fees,
                 'subjects' => $subjects,
@@ -197,7 +244,10 @@ class ClassroomController extends Controller
 
             $claszs = Classroom::orderBy('classrooms.level_id','asc')
             ->join('levels','classrooms.level_id', '=', 'levels.id')
-            ->select('classrooms.id','classrooms.classname','classrooms.roomnumber','classrooms.students','levels.level')
+            ->join('users','classrooms.teacher_id', '=', 'users.id')
+            ->join('staff','staff.index_no', '=', 'users.index_no')
+            ->select('staff.initial','staff.first_name','staff.last_name','classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.level_id','classrooms.roomnumber','classrooms.students','levels.level','classrooms.teacher_id','classrooms.course_id')
+            ->withCount('students')
             ->get();
 
             $response = [
@@ -240,7 +290,10 @@ class ClassroomController extends Controller
 
             $claszs = Classroom::orderBy('classrooms.level_id','asc')
             ->join('levels','classrooms.level_id', '=', 'levels.id')
-            ->select('classrooms.id','classrooms.classname','classrooms.roomnumber','classrooms.students','levels.level')
+            ->join('users','classrooms.teacher_id', '=', 'users.id')
+            ->join('staff','staff.index_no', '=', 'users.index_no')
+            ->select('staff.initial','staff.first_name','staff.last_name','classrooms.id','classrooms.classname','classrooms.subjects','classrooms.fees','classrooms.level_id','classrooms.roomnumber','classrooms.students','levels.level','classrooms.teacher_id','classrooms.course_id')
+            ->withCount('students')
             ->get();
     
             $response = [

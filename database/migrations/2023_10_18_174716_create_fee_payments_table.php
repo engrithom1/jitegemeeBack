@@ -17,8 +17,8 @@ class CreateFeePaymentsTable extends Migration
             $table->id();
             $table->string('year');
             $table->string('valid_to');
-            $table->decimal('amount');
-            $table->decimal('paid_amount');
+            $table->decimal('amount',17,2);
+            $table->decimal('paid_amount',17,2);
             $table->foreignId('student_id')->constrained();
             $table->foreignId('classroom_id')->constrained();
             $table->foreignId('level_id')->constrained();

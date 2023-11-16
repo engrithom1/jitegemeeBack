@@ -142,7 +142,7 @@ class ParentController extends Controller
 
             $search = $request->search_parent;
 
-            $parents = Parento::where('first_name','like',"%{$request->search_parent}%")->orWhere('last_name','like',"%{$request->search_parent}%")->orWhere('middle_name','like',"%{$request->search_parent}%")->orWhere('phone','like',"%{$request->search_parent}%")->get();
+            $parents = Parento::where('first_name','like',"%{$search}%")->orWhere('last_name','like',"%{$search}%")->orWhere('middle_name','like',"%{$search}%")->orWhere('phone','like',"%{$search}%")->get();
 
             $response = [
                 'success' => true,

@@ -20,8 +20,8 @@ class CreateRemoveFeesTable extends Migration
             $table->mediumText('reason');
             $table->string('action')->default('not yet');
             $table->integer('actionable_id')->default(0);
-            $table->decimal('amount');
-            $table->decimal('paid_amount');
+            $table->decimal('amount',17,2);
+            $table->decimal('paid_amount',17,2);
             $table->foreignId('student_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('fee_id')->constrained();

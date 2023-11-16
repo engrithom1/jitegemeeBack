@@ -22,7 +22,29 @@ class StudentController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function pendingStudents()
+    {
+        $students = DB::table('students')
+        ->join('student_statuses','student_statuses.id','=','studentS.student_status_id')
+        ->select('students.id','students.admission','students.index_no','students.first_name','students.middle_name','students.last_name','students.classroom_id','students.level_id','students.accademic_year','student_statuses.status_name')
+        ->where(['students.classroom_id' => 0])
+        ->get();
+
+        $response = [
+        'success' => true,
+        'message' => "Class added Successfuly",
+        'students'  => $students,
+        ];
+
+        return response()->json($response, 200);
+    }
+
+     /**
+     * Display a listing of the resource.
+     * 
      * @return \Illuminate\Http\Response
      */
     public function index()
@@ -36,20 +58,22 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getStudentInfo(Request $request)
+    public function getStudentPersonalInfo(Request $request)
     {
         $index_no = $request->index_no;
 
         $student = DB::table('students')
                           ->join('student_statuses','student_statuses.id','=','students.student_status_id')
-                          ->select('students.id','students.index_no','students.first_name','students.middle_name','students.last_name','students.classroom_id','students.level_id','students.accademic_year',
-                          'student_statuses.status_name','students.phone','students.photo','students.home_address','students.nationality','students.birth_date')
+                          ->join('genders','genders.id','=','students.gender')
+                          ->join('health_statuses','health_statuses.id','=','students.hearth')
+                          ->select('students.id','students.index_no','students.email','students.first_name','students.middle_name','students.last_name','students.classroom_id','students.level_id','students.accademic_year',
+                          'student_statuses.status_name','health_statuses.health','genders.gender','students.phone','students.photo','students.home_address','students.nationality','students.birth_date')
                           ->where(['students.index_no' => $index_no])
                           ->first();
 
         $response = [
             'success' => true,
-            'message' => "Class added Successfuly",
+            'message' => "Student featched Successfuly",
             'student'  => $student,
         ];
 
@@ -189,6 +213,7 @@ class StudentController extends Controller
         ///validatio goes here
         $validator = Validator::make($request->all(),[
             'index_no' =>  ['required', 'string', 'max:255', 'unique:students'],
+            'prem_no' =>  ['required', 'string', 'max:255', 'unique:students'],
             'first_name' => 'required',
             'last_name' => 'required',
             'middle_name' => 'required',
@@ -196,6 +221,7 @@ class StudentController extends Controller
             'gender' => 'required',
             'home_address' => 'required',
             'accademic_year' => 'required',
+            'regist_year' => 'required',
             'user_id' => 'required',
             'birth_date' => 'required',
             'hearth' => 'required',
@@ -254,9 +280,11 @@ class StudentController extends Controller
                 'phone' => $phone,
                 'home_address' => $request->home_address,
                 'accademic_year' => $request->accademic_year,
+                'regist_year' => $request->accademic_year,
                 'photo' => $request->photo,
                 'user_id' => $request->user_id,
                 'index_no' => $request->index_no,
+                'prem_no' => $request->prem_no,
                 'birth_date' => $request->birth_date,
                 'behavior' => $behavior,
                 'hearth' => $request->hearth,
