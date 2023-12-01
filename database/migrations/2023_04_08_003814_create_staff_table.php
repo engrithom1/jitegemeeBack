@@ -22,6 +22,7 @@ class CreateStaffTable extends Migration
             $table->string('last_name');
             $table->string('gender');
             $table->string('phone');
+            $table->string('about_me');
             $table->string('photo')->default('staff.png');
             $table->string('home_address');
             $table->string('email');

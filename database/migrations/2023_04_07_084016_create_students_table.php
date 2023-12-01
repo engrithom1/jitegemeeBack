@@ -20,7 +20,7 @@ class CreateStudentsTable extends Migration
             $table->string('last_name');
             $table->string('gender');
             $table->string('phone')->default('no phone');
-            $table->string('photo')->default('staff.png');
+            $table->string('photo')->default('man.png');
             $table->string('home_address');
             $table->string('email')->default('no email');
             $table->string('accademic_year');
@@ -33,6 +33,9 @@ class CreateStudentsTable extends Migration
             $table->string('school_from')->default('no transfer');
             $table->string('entry');
             $table->string('admission');
+            $table->string('religion');
+            $table->string('birth_place');
+            $table->string('former_school');
             $table->string('hearth');
             $table->string('index_no');
             $table->string('prem_no');

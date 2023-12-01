@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 use App\Models\User;
 use App\Models\Staff;
@@ -13,6 +14,43 @@ use DB;
 
 class AuthController extends Controller
 {
+    ////change password
+    public function changePassword(Request $request){
+        
+        $new_password = $request->new_password;
+        $current_password = $request->current_password;
+        $user_id = $request->user_id;
+
+        $now_password = Auth::user()->password;
+
+        try {
+            if(Hash::check($current_password,$now_password)){
+            
+                $data = [
+                    'password'=>bcrypt($request->new_password)
+                ];
+                User::where(['id'=>$user_id])->update($data);
+                $response = [
+                    'success' => true,
+                    'message' => "Password Changed Successfully.."
+                ];
+                return response()->json($response, 200);
+            }else{
+                $response = [
+                    'success' => false,
+                    'message' => "Incorrect Current Password"
+                ];
+                return response()->json($response, 200);
+            }
+    
+        } catch (\Throwable $th) {
+            $response = [
+                'success' => false,
+                'message' => "Database or server Error"
+            ];
+            return response()->json($response, 200);
+        }
+    }
 
     public function login(Request $request){
 
@@ -29,7 +67,7 @@ class AuthController extends Controller
 
                     $uza = Staff::where('staff.index_no',$index_no)
                     ->join('users','staff.index_no', '=', 'users.index_no')
-                    ->select('staff.photo','users.username','users.id','users.role_id')
+                    ->select('staff.photo','staff.department_id','users.username','users.id','users.role_id','users.index_no')
                     ->get();
 
                     $data['user'] = $uza[0];
@@ -39,7 +77,7 @@ class AuthController extends Controller
 
                     $uza = Student::where('students.index_no',$index_no)
                     ->join('users','students.index_no', '=', 'users.index_no')
-                    ->select('students.photo','users.username','users.id','users.role_id')
+                    ->select('students.photo','users.username','users.id','users.role_id','users.index_no')
                     ->get();
 
                     $data['user'] = $uza[0];

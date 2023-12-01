@@ -11,7 +11,7 @@ class Fee extends Model
 
     protected $table = 'fees';
     protected $primaryKey = 'id';
-    protected $fillable = ['fee','user_id','amount','duration','min_amount'];
+    protected $fillable = ['fee','user_id','level_id','status','amount','duration','min_amount'];
 
     public function user()
     {

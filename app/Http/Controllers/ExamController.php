@@ -46,6 +46,53 @@ class ExamController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function changeExamStatus(Request $request)
+    {
+
+        $user_id = $request->user_id;
+        $role_id = $request->role_id;
+        $id = $request->id;
+        $status = $request->status;
+        
+        if($role_id < 3){
+            return response()->json(['success' => false,
+            'message' => ['You not allowed to make this action']], 200); 
+        }
+
+        try {
+            $exam = [
+                'status' => $status,
+            ];
+    
+            Exam::where(['id'=>$id])->update($exam);
+    
+            $exams = Exam::all();
+    
+            $response = [
+                'success' => true,
+                'message' => "Status Edited Successfuly",
+                'exams'   => $exams
+            ];
+    
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            $response = [
+                'success' => false,
+                'message' => "Database or Server Error",
+            ];
+    
+            return response()->json($response, 200);
+        }
+
+
+    }
+
+    /**changeExamStatus
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
        ///validatio goes here

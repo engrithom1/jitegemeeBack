@@ -10,9 +10,84 @@ use App\Models\Staff;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Department;
+use DB;
 
 class StaffController extends Controller
 {
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateAboutMe(Request $request)
+    {
+        $user_id = $request->user_id;
+        $about_me = $request->about_me;
+        $index_no = $request->index_no;
+
+        try {
+
+            $data = [
+                'about_me' => $about_me, 
+            ];
+
+            Staff::where(['index_no'=>$index_no])->update($data);
+          
+            $response = [
+                'success' => true,
+                'message' => "Updated Successfully...",
+            ];
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            //return $th;
+            $response = [
+                'success' => false,
+                'message' => "Databse or server error",
+                'error' => $th
+            ];
+            return response()->json($response, 200);
+        }
+        
+    }
+
+    /**update-about-me
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function staffProfile(Request $request)
+    {
+        $user_id = $request->user_id;
+        try {
+            $me = DB::table('staff')
+            ->join('users','staff.index_no', '=', 'users.index_no')
+            ->join('roles','staff.role_id', '=', 'roles.id')
+            ->join('genders','genders.id','=','staff.gender')
+            ->join('departments','staff.department_id', '=', 'departments.id')
+            ->select('staff.email','about_me','genders.gender','staff.index_no','staff.home_address','staff.photo','staff.phone','staff.initial','staff.last_name','staff.middle_name','staff.first_name','departments.department','roles.color','roles.role','users.username','users.id')
+            ->where(['users.id' => $user_id])
+            ->first();
+
+            $response = [
+                'success' => true,
+                'me' => $me
+            ];
+            return response()->json($response, 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            //return $th;
+            $response = [
+                'success' => false,
+                'message' => "Databse or server error",
+                'error' => $th
+            ];
+            return response()->json($response, 200);
+        }
+        
+    }
     /**
      * Display a listing of the resource.
      *
@@ -85,6 +160,7 @@ class StaffController extends Controller
                 'user_id' => $request->user_id,
                 'index_no' => $index_no,
                 'email' => $request->username,
+                'about_me' => "Am staff at jitegemee secondary",
             ];
 
             $user = [

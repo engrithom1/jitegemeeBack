@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Department;
 use Illuminate\Http\Request;
+use DB;
 
 class DepartmentController extends Controller
 {
@@ -15,7 +16,7 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        return Department::all();
+        return Department::orderBy('departments.id','desc')->withCount('staff')->get();
     }
 
     /**
@@ -62,7 +63,7 @@ class DepartmentController extends Controller
             Department::create($data);
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $departments = Department::all();
+            $departments = Department::orderBy('departments.id','desc')->withCount('staff')->get();
 
             $response = [
                 'success' => true,
@@ -131,7 +132,7 @@ class DepartmentController extends Controller
             Department::where(['id'=>$department_id])->update($data);
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $departments = Department::all();
+            $departments = Department::orderBy('departments.id','desc')->withCount('staff')->get();
 
             $response = [
                 'success' => true,
@@ -171,7 +172,7 @@ class DepartmentController extends Controller
             Department::where(['id' => $department_id])->delete();
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $departments = Department::all();
+            $departments = Department::orderBy('departments.id','desc')->withCount('staff')->get();
     
             $response = [
                 'success' => true,

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Subject;
 use Illuminate\Http\Request;
+use DB;
 
 class SubjectController extends Controller
 {
@@ -16,6 +17,20 @@ class SubjectController extends Controller
     public function index()
     {
         return Subject::all();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexLevel()
+    {
+        return DB::table('subjects')
+                 ->orderBy('level_id','asc')
+                 ->join('levels','levels.id','subjects.level_id')
+                 ->select('levels.level','subjects.subject','subjects.code','subjects.id')
+                 ->get();
     }
 
    
@@ -45,7 +60,7 @@ class SubjectController extends Controller
     {
         ///validatio goes here
        $validator = Validator::make($request->all(),[
-        'subject' => ['required', 'string', 'max:255', 'unique:subjects'],
+        'subject' => ['required', 'string', 'max:255'],
         'code' => ['required', 'string', 'max:255', 'unique:subjects'],
        ]);
 
@@ -60,6 +75,7 @@ class SubjectController extends Controller
 
             $user_id = $request->user_id;
             $role_id = $request->role_id;
+            $level_id = $request->level_id;
             $subject = $request->subject;
             $code = $request->code;
             
@@ -68,8 +84,13 @@ class SubjectController extends Controller
                 'message' => ['You not allowed to make this action']], 200); 
             }
 
+            $subs = Subject::where(['subject' => $subject, 'level_id' => $level_id])->get();
+
+            if(count($subs) === 0){
+
             $data = [
                 'user_id' => $user_id,
+                'level_id' => $level_id,
                 'subject' => $subject,
                 'code' => $code,
             ];
@@ -82,7 +103,11 @@ class SubjectController extends Controller
             Subject::create($data);
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $subjects = Subject::all();
+            $subjects = DB::table('subjects')
+                        ->orderBy('level_id','asc')
+                        ->join('levels','levels.id','subjects.level_id')
+                        ->select('levels.level','subjects.subject','subjects.code','subjects.id')
+                        ->get();
 
             $response = [
                 'success' => true,
@@ -91,6 +116,14 @@ class SubjectController extends Controller
             ];
 
             return response()->json($response, 200);
+            }else{
+                $response = [
+                    'success' => false,
+                    'message' => "Subject for a particular Level is Existing",
+                ];
+
+                return response()->json($response, 200);
+            }
         }
 
     }
@@ -155,7 +188,11 @@ class SubjectController extends Controller
             Subject::where(['id'=>$subject_id])->update($data);
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $subjects = Subject::all();
+            $subjects = DB::table('subjects')
+                        ->orderBy('level_id','asc')
+                        ->join('levels','levels.id','subjects.level_id')
+                        ->select('levels.level','subjects.subject','subjects.code','subjects.id')
+                        ->get();
 
             $response = [
                 'success' => true,
@@ -195,7 +232,11 @@ class SubjectController extends Controller
             Subject::where(['id' => $subject_id])->delete();
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $subjects = Subject::all();
+            $subjects = DB::table('subjects')
+                        ->orderBy('level_id','asc')
+                        ->join('levels','levels.id','subjects.level_id')
+                        ->select('levels.level','subjects.subject','subjects.code','subjects.id')
+                        ->get();
     
             $response = [
                 'success' => true,

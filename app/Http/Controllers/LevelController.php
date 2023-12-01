@@ -7,6 +7,22 @@ use Illuminate\Http\Request;
 
 class LevelController extends Controller
 {
+        /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function allLevels()
+    {
+        
+        try {
+         $lvs =  Level::all();
+         return $lvs;
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $th;
+        }
+    }
     /**
      * Display a listing of the resource.
      *

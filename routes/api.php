@@ -14,7 +14,7 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamMarksController;
 use App\Http\Controllers\HostExamMarksController;
-use App\Http\Controllers\GenderController;
+use App\Http\Controllers\genderController;
 use App\Http\Controllers\RelationToController;
 use App\Http\Controllers\AdmissionTypeController;
 use App\Http\Controllers\EntryTypeController;
@@ -58,7 +58,7 @@ Route::get('/staffs',[StaffController::class,'index']);
 ///roles
 Route::get('/roles',[RoleController::class,'index']);
 ///genders
-Route::get('/genders',[GenderController::class,'index']);
+Route::get('/genders',[genderController::class,'index']);
 ///genders
 Route::get('/healths',[HealthStatusController::class,'index']);
 ///entry
@@ -73,8 +73,10 @@ Route::get('/exams',[ExamController::class,'index']);
 Route::get('/active_exams',[ExamController::class,'activeExams']);
 //levels
 Route::get('/levels',[LevelController::class,'index']);
+Route::get('/all-levels',[LevelController::class,'allLevels']);
 ////subject
 Route::get('/subjects',[SubjectController::class,'index']);
+Route::get('/subjects-level',[SubjectController::class,'indexLevel']);
 ////class_subject
 Route::post('/class_subjects',[SubjectController::class,'classSubjects']);
 //classes 
@@ -87,6 +89,8 @@ Route::get('/courses',[CourseController::class,'index']);
 Route::get('/grades',[GradeController::class,'index']);
 //feee 
 Route::get('/fees',[FeeController::class,'index']);
+Route::get('/level-fees',[FeeController::class,'levelFees']);
+Route::get('/fee-status',[FeeController::class,'feeStatus']);
 //parents
 Route::get('/parents',[ParentController::class,'index']);
 //parent status
@@ -95,16 +99,19 @@ Route::get('/parent-status',[ParentStatusController::class,'index']);
 Route::post('/dashbord-datas',[DashbordController::class,'dashbordDatas']);
 /////students /pending_students
 Route::get('/pending_students',[StudentController::class,'pendingStudents']);
+/////students /proposed-index-no
+Route::get('/proposed-index-no',[StudentController::class,'proposedIndexNo']);
 
 
 
 ////this Routes need authentication token to gooo
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout',[AuthController::class, 'logout']);
-    //exams
+    //exams /change-exam-status
     Route::post('/create-exam',[ExamController::class,'store']);
     Route::post('/delete-exam',[ExamController::class,'destroy']);
     Route::post('/update-exam',[ExamController::class,'update']);
+    Route::post('/change-exam-status',[ExamController::class,'changeExamStatus']);
     //exam mark record
     Route::post('/create-exam-mark',[ExamMarksController::class,'store']);
     Route::post('/update-exam-mark',[ExamMarksController::class,'update']);
@@ -136,14 +143,19 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/create-fee',[FeeController::class,'store']);
     Route::post('/delete-fee',[FeeController::class,'destroy']);
     Route::post('/update-fee',[FeeController::class,'update']);
-    ///student 
+    ///student /finance-info
     Route::post('/create-student',[StudentController::class,'store']);
     Route::post('/class_students',[StudentController::class,'classStudents']);
     Route::post('/reflesh_students',[StudentController::class,'refleshStudents']);
     Route::post('/search_student_index_no',[studentController::class,'getStudentByIndexNo']);
     Route::post('/search_student_personal_info',[studentController::class,'getStudentPersonalInfo']);
-    ///staff
+    Route::post('/admission-info',[studentController::class,'getAdmissionInfo']);
+    Route::post('/parent-info',[studentController::class,'getParentInfo']);
+    Route::post('/finance-info',[studentController::class,'getFinanceInfo']);
+    ///staff /staff-profile
     Route::post('/create-staff',[StaffController::class,'store']);
+    Route::post('/staff-profile',[StaffController::class,'staffProfile']);
+    Route::post('/update-about-me',[StaffController::class,'updateAboutMe']);
     ///parent
     Route::post('/create-parent',[ParentController::class,'store']);
     Route::post('/search-parent',[ParentController::class,'show']);
@@ -159,6 +171,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/get_class_students',[AttendanceController::class,'getClassStudents']);
     Route::post('/submit_attendance',[AttendanceController::class,'addAttendance']);
     Route::post('/attendance_records',[AttendanceController::class,'getAttendanceRecords']);
+    ////auth custom request 
+    Route::post('/change-password',[AuthController::class,'changePassword']);
 });
 
 

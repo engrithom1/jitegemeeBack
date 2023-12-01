@@ -15,11 +15,23 @@ use App\Models\Role;
 use App\Models\Parento;
 use App\Models\Student;
 use App\Models\ExamMarks;
+use App\Models\FeePayment;
+use App\Models\Fee;
+use App\Models\FeeBalance;
 use DB;
 
 
 class StudentController extends Controller
 {
+    /**$paids = FeePayment::where('year',$year)->sum('paid_amount');
+     * Display a listing of the resource.
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function proposedIndexNo()
+    {
+        return Student::max('index_no') + 1;
+    }
     /**
      * Display a listing of the resource.
      * 
@@ -52,7 +64,77 @@ class StudentController extends Controller
         //
     }
 
-           /**
+            /**
+     * Store a newly created resource in storage. getFinanceInfo
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getFinanceInfo(Request $request)
+    {
+        $student_id = $request->student_id;
+        $year = $request->year;
+
+        $balance = FeeBalance::where(['student_id' => $student_id])->first();
+        $feepays = DB::table('fee_payments')
+                    ->join('fees','fees.id','=','fee_payments.fee_id')
+                    ->select('fees.id AS f_id','fees.fee','fee_payments.id','fee_payments.amount','fee_payments.paid_amount','fee_payments.status')
+                    ->where(['fee_payments.year' => $year,'fee_payments.student_id' => $student_id])->get();
+
+        $response = [
+            'success' => true,
+            'message' => "Succesfully Paid..",
+            'feepays'  => $feepays,
+            'balance' =>  $balance['amount']
+        ];
+        
+        return response()->json($response, 200);
+    } 
+
+            /**
+     * Store a newly created resource in storage. getFinanceInfo
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getAdmissionInfo(Request $request)
+    {
+        $student_id = $request->student_id;
+
+        return DB::table('students')
+                ->join('student_statuses','student_statuses.id','=','students.student_status_id')
+                ->join('classrooms','classrooms.id','=','students.classroom_id')
+                ->join('levels','levels.id','=','students.level_id')
+                ->join('admission_types','admission_types.id','=','students.admission')
+                ->join('entry_types','entry_types.id','=','students.entry')
+                ->select('students.id','students.regist_year','student_statuses.status_name','students.accademic_year','students.created_at','students.prem_no','students.index_no','admission_types.admission','levels.level','classrooms.classname',
+                'entry_types.id AS entry_id','entry_types.entry','students.school_from','students.transfer_reason')
+                ->where(['students.id' => $student_id])
+                ->first();
+
+    } 
+         /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getParentInfo(Request $request)
+    {
+        $student_id = $request->student_id;
+
+        return DB::table('students')
+                ->join('parents','parents.id','=','students.parent_id')
+                ->join('relation_tos','relation_tos.id','=','students.relation_to')
+                ->join('genders','genders.id','=','parents.gender')
+                ->select('students.id','parents.first_name','parents.middle_name','parents.last_name','parents.photo','parents.home_address','parents.phone',
+                'parents.email','parents.occupation','relation_tos.relation','parents.nationality','genders.gender')
+                ->where(['students.id' => $student_id])
+                ->first();
+
+    } 
+
+           /**getParentInfo
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -64,10 +146,11 @@ class StudentController extends Controller
 
         $student = DB::table('students')
                           ->join('student_statuses','student_statuses.id','=','students.student_status_id')
+                          ->join('parent_statuses','parent_statuses.id','=','students.parent_status_id')
                           ->join('genders','genders.id','=','students.gender')
                           ->join('health_statuses','health_statuses.id','=','students.hearth')
                           ->select('students.id','students.index_no','students.email','students.first_name','students.middle_name','students.last_name','students.classroom_id','students.level_id','students.accademic_year',
-                          'student_statuses.status_name','health_statuses.health','genders.gender','students.phone','students.photo','students.home_address','students.nationality','students.birth_date')
+                          'student_statuses.status_name','parent_statuses.parent_status','students.behavior','health_statuses.health','genders.gender','students.phone','students.photo','students.home_address','students.nationality','students.birth_date')
                           ->where(['students.index_no' => $index_no])
                           ->first();
 
@@ -92,7 +175,7 @@ class StudentController extends Controller
         $index_no = $request->index_no;
 
         $student = DB::table('students')
-                          ->join('student_statuses','student_statuses.id','=','studentS.student_status_id')
+                          ->join('student_statuses','student_statuses.id','=','students.student_status_id')
                           ->select('students.id','students.admission','students.index_no','students.first_name','students.middle_name','students.last_name','students.classroom_id','students.level_id','students.accademic_year','student_statuses.status_name')
                           ->where(['students.index_no' => $index_no])
                           ->first();
@@ -213,7 +296,7 @@ class StudentController extends Controller
         ///validatio goes here
         $validator = Validator::make($request->all(),[
             'index_no' =>  ['required', 'string', 'max:255', 'unique:students'],
-            'prem_no' =>  ['required', 'string', 'max:255', 'unique:students'],
+            'prem_no' =>  'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'middle_name' => 'required',
@@ -240,6 +323,8 @@ class StudentController extends Controller
             return response()->json($response, 200);
 
         }else{
+
+            $created_at = date('Y-m-d');
 
             $role_id = $request->role_id;
 
@@ -295,10 +380,14 @@ class StudentController extends Controller
                 'classroom_id' => $request->classroom_id,
                 'parent_id' => $request->parent_id,
                 'entry' => $request->entry,
+                'religion' => $request->religion,
+                'former_school' => $request->former_school,
+                'birth_place' => $request->birth_place,
                 'nationality' => $request->nationality,
                 'email' => $email,
                 'student_status_id' => 1,
                 'parent_status_id' => $request->parent_status_id,
+                'created_at' => $created_at
 
             ];
 
@@ -311,20 +400,73 @@ class StudentController extends Controller
             ];
 
             try {
-                Student::create($student);
+                $student_id = Student::insertGetId($student);
                 User::create($user);
+
+                /////////take care about payments//////////////////////////
+                $fees = $request->fees;
+                $fz = explode(',',$fees);
+
+                $year = $request->accademic_year;
+                $level_id = $request->level_id;
+                $class_id = $request->classroom_id;
+                $user_id = $request->user_id;
+
+                $feepay = DB::table('fee_payments')
+                    ->join('fees','fees.id','=','fee_payments.fee_id')
+                    ->select('fees.id AS f_id','fees.fee','fee_payments.id','fee_payments.amount','fee_payments.paid_amount','fee_payments.status')
+                    ->where(['fee_payments.year' => $year, 'fee_payments.level_id' => $level_id, 'fee_payments.student_id' => $student_id])->get();
+
+                ////take care of balance man
+                $student_balance = FeeBalance::where(['student_id' => $student_id])->get();
+
+                if(count($student_balance) === 0){
+                    FeeBalance::create(['amount' => 0,'student_id'=>$student_id,'user_id'=>$user_id]);
+                }
+
+                if(count($feepay) === 0){
+                    ///action where payments hazipo
+                    ///select fees on class
+                   
+                    $fzs = Fee::whereIn('id',$fz)->get();
+                    $stdz = [];
+        
+                    foreach($fzs as $fe){
+                        $row_arr = [];
+        
+                        $row_arr = [
+                            'valid_to' => $year,
+                            'amount' => $fe->amount,
+                            'paid_amount' => 0,
+                            'student_id' => $student_id,
+                            'level_id' => $level_id,
+                            'user_id'  => $user_id,
+                            'year' => $year,
+                            'created_at' => $created_at,
+                            'status' => 0,
+                            'classroom_id' => $class_id,
+                            'fee_id' => $fe->id
+                        ];
+                        
+            
+                        array_push($stdz, $row_arr);
+        
+                    }
+                    
+                        DB::table('fee_payments')->insert($stdz);
+                }
 
                 $response = [
                     'success' => true,
-                    'message' => $request->initial." ".$request->first_name." ".$request->last_name." added Successfuly"
+                    'message' => $request->first_name." ".$request->last_name." added Successfuly"
                 ];
 
                 return response()->json($response, 200);
 
             } catch (\Throwable $th) {
                 return $th;
-                /*return response()->json(['success' => false,
-                'message' => ['Database error']], 200);*/
+                return response()->json(['success' => false,
+                'message' => ['Database error']], 200);
             }
 
             

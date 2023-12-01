@@ -11,7 +11,7 @@ class Staff extends Model
 
     protected $table = 'staff';
     protected $primaryKey = 'id';
-    protected $fillable = ['role_id','user_id','department_id','initial','first_name','middle_name','last_name','gender','phone','photo','home_address','email','index_no'];
+    protected $fillable = ['role_id','user_id','about_me','department_id','initial','first_name','middle_name','last_name','gender','phone','photo','home_address','email','index_no'];
 
     public function user()
     {

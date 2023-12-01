@@ -67,12 +67,18 @@ class ParentController extends Controller
 
             $role_id = $request->role_id;
 
+            $email = $request->email;
+
             if($role_id < 3){
                 return response()->json(['success' => false,
                 'message' => ['You not allowed to make this action']], 200); 
             }
 
-            if($request->hasFile('photo')){
+            if($email == "" || $email == null){
+                $email = "no email";
+            }
+
+            /*if($request->hasFile('photo')){
                 //return 12345;
                 $nameWithExtension = $request->file('photo')->getClientOriginalName();
     
@@ -88,7 +94,7 @@ class ParentController extends Controller
             }else{
                 //return 65432;
                 $nameToStore = 'man.png';
-            }
+            }*/
             
             $parent = [
                 'first_name' => $request->first_name,
@@ -99,9 +105,9 @@ class ParentController extends Controller
                 'gender' => $request->gender,
                 'phone' => $request->phone,
                 'home_address' => $request->home_address,
-                'photo' => $nameToStore,
+                'photo' => "man.png",
                 'user_id' => $request->user_id,
-                'email' => $request->email,
+                'email' => $email,
             ];
 
             Parento::create($parent);

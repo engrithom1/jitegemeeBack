@@ -11,7 +11,7 @@ class Subject extends Model
 
     protected $table = 'subjects';
     protected $primaryKey = 'id';
-    protected $fillable = ['subject','code','user_id'];
+    protected $fillable = ['subject','code','user_id','level_id'];
 
     public function user()
     {

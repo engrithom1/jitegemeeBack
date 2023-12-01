@@ -6,9 +6,25 @@ use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Http\Request;
 use App\Models\Fee;
+use App\Models\FeeStatus;
+use DB;
 
 class FeeController extends Controller
 {
+      /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function feeStatus()
+    {
+        try {
+            return FeeStatus::all();
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $th;
+        }
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,6 +34,25 @@ class FeeController extends Controller
     {
         try {
             return Fee::all();
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $th;
+        }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function levelFees()
+    {
+        try {
+            return DB::table('fees')
+            ->join('levels','levels.id','fees.level_id')
+            ->join('fee_statuses','fee_statuses.id','fees.status')
+            ->select('fees.level_id','fees.status','fee_statuses.status AS status_label','fees.fee','fees.amount','levels.level','fees.id',)
+            ->get();
         } catch (\Throwable $th) {
             //throw $th;
             return $th;
@@ -36,6 +71,8 @@ class FeeController extends Controller
        $validator = Validator::make($request->all(),[
         'fee' => ['required', 'string', 'max:255', 'unique:fees'],
         'amount' => 'required',
+        'level_id' => 'required',
+        'fstatus' => 'required',
        ]);
 
        if($validator->fails()){
@@ -49,8 +86,10 @@ class FeeController extends Controller
 
         $user_id = $request->user_id;
         $role_id = $request->role_id;
+        $level_id = $request->level_id;
         $fee = $request->fee;
         $amount = $request->amount;
+        $fstatus = $request->fstatus;
         $min_amount = $request->min_amount;
         $duration = $request->duration;
         
@@ -61,8 +100,10 @@ class FeeController extends Controller
 
         $feez = [
             'user_id' => $user_id,
+            'level_id' => $level_id,
             'fee' => $fee,
             'amount' => $amount,
+            'status' => $fstatus,
             'min_amount' => 0,
             'duration' => 0,
         ];
@@ -75,7 +116,11 @@ class FeeController extends Controller
         Fee::create($feez);
         app('App\Http\Controllers\LogController')->storeLogs($log);
 
-        $fees = Fee::all();
+        $fees = DB::table('fees')
+        ->join('levels','levels.id','fees.level_id')
+        ->join('fee_statuses','fee_statuses.id','fees.status')
+        ->select('fees.level_id','fees.status','fee_statuses.status AS status_label','fees.fee','fees.amount','levels.level','fees.id',)
+        ->get();
 
         $response = [
             'success' => true,
@@ -110,7 +155,7 @@ class FeeController extends Controller
        $validator = Validator::make($request->all(),[
         'fee' => ['required', 'string', 'max:255'],
         'amount' => 'required',
-        
+        'status' => 'required',
        ]);
 
        if($validator->fails()){
@@ -126,6 +171,7 @@ class FeeController extends Controller
             $role_id = $request->user_id;
             $fee = $request->fee;
             $amount = $request->amount;
+            $status = $request->status;
             $min_amount = $request->min_amount;
             $duration = $request->duration;
             $fee_id = $request->fee_id;
@@ -140,6 +186,7 @@ class FeeController extends Controller
                 'user_id' => $user_id,
                 'fee' => $fee,
                 'amount' => $amount,
+                'status' => $status,
                 'min_amount' => 0,
                 'duration' => 0,
             ];
@@ -152,7 +199,11 @@ class FeeController extends Controller
             Fee::where(['id'=>$fee_id])->update($feez);
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $fees = Fee::all();
+            $fees = DB::table('fees')
+                    ->join('levels','levels.id','fees.level_id')
+                    ->join('fee_statuses','fee_statuses.id','fees.status')
+                    ->select('fees.level_id','fees.status','fee_statuses.status AS status_label','fees.fee','fees.amount','levels.level','fees.id',)
+                    ->get();
 
             $response = [
                 'success' => true,
@@ -192,7 +243,11 @@ class FeeController extends Controller
             Fee::where(['id' => $fee_id])->delete();
             app('App\Http\Controllers\LogController')->storeLogs($log);
 
-            $fees = Fee::all();
+            $fees = DB::table('fees')
+            ->join('levels','levels.id','fees.level_id')
+            ->join('fee_statuses','fee_statuses.id','fees.status')
+            ->select('fees.level_id','fees.status','fee_statuses.status AS status_label','fees.fee','fees.amount','levels.level','fees.id',)
+            ->get();
     
             $response = [
                 'success' => true,

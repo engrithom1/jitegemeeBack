@@ -141,7 +141,7 @@ class FeePaymentController extends Controller
        $feepay = DB::table('fee_payments')
                     ->join('fees','fees.id','=','fee_payments.fee_id')
                     ->select('fees.id AS f_id','fees.fee','fee_payments.id','fee_payments.amount','fee_payments.paid_amount','fee_payments.status')
-                    ->where(['year' => $year, 'level_id' => $level_id, 'student_id' => $student_id])->get();
+                    ->where(['year' => $year, 'fee_payments.level_id' => $level_id, 'student_id' => $student_id])->get();
 
         $response = [
             'success' => true,
@@ -196,7 +196,7 @@ class FeePaymentController extends Controller
         $feepay = DB::table('fee_payments')
                     ->join('fees','fees.id','=','fee_payments.fee_id')
                     ->select('fees.id AS f_id','fees.fee','fee_payments.id','fee_payments.amount','fee_payments.paid_amount','fee_payments.status')
-                    ->where(['year' => $year, 'level_id' => $level_id, 'student_id' => $student_id])->get();
+                    ->where(['year' => $year, 'fee_payments.level_id' => $level_id, 'student_id' => $student_id])->get();
 
         $response = [
             'success' => true,
@@ -232,19 +232,37 @@ class FeePaymentController extends Controller
         }
 
         Student::where(['id'=>$student_id])->update(['classroom_id' => $class_id, 'level_id' => $level_id,'admission' => $admission_id]);
+        
         $fz = explode(',',$fees);
+
         $feepay = DB::table('fee_payments')
                     ->join('fees','fees.id','=','fee_payments.fee_id')
                     ->select('fees.id AS f_id','fees.fee','fee_payments.id','fee_payments.amount','fee_payments.paid_amount','fee_payments.status')
-                    ->where(['year' => $year, 'level_id' => $level_id, 'student_id' => $student_id])->get();
-        $o_fees = Fee::whereNotIn('id',$fz)->get();
+                    ->where(['year' => $year, 'fee_payments.level_id' => $level_id, 'student_id' => $student_id])->get();
+
+        if($level_id < 5){
+            $o_fees = Fee::where(['level_id' => 0])
+                    ->orWhere(['level_id' => 7])
+                    ->orWhere(['level_id' => $level_id])
+                    ->get();
+        }
+
+        if($level_id > 4){
+            $o_fees = Fee::where(['level_id' => 0])
+                    ->orWhere(['level_id' => 8])
+                    ->orWhere(['level_id' => $level_id])
+                    ->get();
+        }
 
         ////take care of balance man
         $student_balance = FeeBalance::where(['student_id' => $student_id])->get();
+
         if(count($student_balance) === 0){
             FeeBalance::create(['amount' => 0,'student_id'=>$student_id,'user_id'=>$user_id]);
         }
+
         $student_balance = FeeBalance::where(['student_id' => $student_id])->get();
+        
         if(count($feepay) === 0){
             ///action where payments hazipo
             ///select fees on class
@@ -278,7 +296,7 @@ class FeePaymentController extends Controller
                 $feepay = DB::table('fee_payments')
                     ->join('fees','fees.id','=','fee_payments.fee_id')
                     ->select('fees.id AS f_id','fees.fee','fee_payments.id','fee_payments.amount','fee_payments.paid_amount','fee_payments.status')
-                    ->where(['year' => $year, 'level_id' => $level_id, 'student_id' => $student_id])->get();
+                    ->where(['year' => $year, 'fee_payments.level_id' => $level_id, 'student_id' => $student_id])->get();
 
                 $response = [
                     'success' => true,
