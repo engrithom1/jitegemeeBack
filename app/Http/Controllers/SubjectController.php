@@ -9,6 +9,24 @@ use DB;
 
 class SubjectController extends Controller
 {
+     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function alevelSubjects()
+    {
+        return Subject::where(['level_id' => 8])->get();
+    }
+      /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function olevelSubjects()
+    {
+        return Subject::where(['level_id' => 7])->get();
+    }
     /**
      * Display a listing of the resource.
      *

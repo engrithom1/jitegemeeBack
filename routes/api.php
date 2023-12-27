@@ -77,6 +77,8 @@ Route::get('/all-levels',[LevelController::class,'allLevels']);
 ////subject
 Route::get('/subjects',[SubjectController::class,'index']);
 Route::get('/subjects-level',[SubjectController::class,'indexLevel']);
+Route::get('/alevel-subjects',[SubjectController::class,'alevelSubjects']);
+Route::get('/olevel-subjects',[SubjectController::class,'olevelSubjects']);
 ////class_subject
 Route::post('/class_subjects',[SubjectController::class,'classSubjects']);
 //classes 
@@ -144,6 +146,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/delete-fee',[FeeController::class,'destroy']);
     Route::post('/update-fee',[FeeController::class,'update']);
     ///student /finance-info
+    Route::get('/all-students',[StudentController::class,'index']);
     Route::post('/create-student',[StudentController::class,'store']);
     Route::post('/class_students',[StudentController::class,'classStudents']);
     Route::post('/reflesh_students',[StudentController::class,'refleshStudents']);

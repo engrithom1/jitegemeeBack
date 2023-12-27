@@ -61,7 +61,16 @@ class StudentController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            return DB::table('students')
+            ->join('genders', 'genders.id', '=', 'students.gender')
+            ->join('classrooms', 'classrooms.id', '=', 'students.classroom_id')
+            ->select('genders.gender','classrooms.classname','students.id','students.index_no','students.first_name','students.last_name','students.middle_name','students.phone','students.home_address','students.level_id','students.classroom_id')
+            ->get();
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $th;
+        }
     }
 
             /**
