@@ -98,7 +98,14 @@ Route::get('/parents',[ParentController::class,'index']);
 //parent status
 Route::get('/parent-status',[ParentStatusController::class,'index']);
 /////dashbord-datas
-Route::post('/dashbord-datas',[DashbordController::class,'dashbordDatas']);
+Route::post('/dash-attendance',[DashbordController::class,'dashAttendance']);
+Route::get('/dash-balances',[DashbordController::class,'dashBalances']);
+Route::get('/dash-students',[DashbordController::class,'dashStudents']);
+Route::get('/dash-teachers',[DashbordController::class,'dashTeachers']);
+Route::get('/dash-staffs',[DashbordController::class,'dashStaffs']);
+Route::get('/dash-subjects',[DashbordController::class,'dashSubjects']);
+Route::post('/dash-paids',[DashbordController::class,'dashPaids']);
+Route::post('/dash-debits',[DashbordController::class,'dashDebits']);
 /////students /pending_students
 Route::get('/pending_students',[StudentController::class,'pendingStudents']);
 /////students /proposed-index-no

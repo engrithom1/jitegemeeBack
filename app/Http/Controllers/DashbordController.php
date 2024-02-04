@@ -23,51 +23,144 @@ use DB;
 
 class DashbordController extends Controller
 {
+
+         /**
+    * Store a newly created resource in storage.
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return \Illuminate\Http\Response
+    */
+    public function dashDebits(Request $request)
+    {
+ 
+     $year = $request->year;
+     try {
+      $paids = FeePayment::where('year',$year)->sum('paid_amount');
+      $required = FeePayment::where('year',$year)->sum('amount');
+       return $required - $paids;
+     } catch (\Throwable $th) {
+       return 0;
+     }
+     
+  
+     }
+       /**
+    * Store a newly created resource in storage.
+    *
+    * @param  \Illuminate\Http\Request  $request
+    * @return \Illuminate\Http\Response
+    */
+    public function dashPaids(Request $request)
+    {
+ 
+     $year = $request->year;
+     try {
+      return FeePayment::where('year',$year)->sum('paid_amount');
+     } catch (\Throwable $th) {
+      return 0;
+     }
+     }
+  /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function dashSubjects()
+    {
+      try {
+        return Subject::count();
+      } catch (\Throwable $th) {
+        return 0;
+      }
+
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function dashStaffs()
+    {
+      try {
+        return Staff::count();
+      } catch (\Throwable $th) {
+        return 0;
+      }
+
+    }
+     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function dashTeachers()
+    {
+      try {
+        return Staff::where('role_id',2)->count();
+      } catch (\Throwable $th) {
+        return 0;
+      }
+
+    }
+     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function dashStudents()
+    {
+      try {
+        return Student::where('student_status_id',1)->count();
+      } catch (\Throwable $th) {
+        return 0;
+      }
+
+    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function dashBalances()
+    {
+      try {
+        return FeeBalance::sum('amount');
+      } catch (\Throwable $th) {
+        return 0;
+      }
+
+    }
       /**
     * Store a newly created resource in storage.
     *
     * @param  \Illuminate\Http\Request  $request
     * @return \Illuminate\Http\Response
     */
-   public function dashbordDatas(Request $request)
+   public function dashAttendance(Request $request)
    {
 
-    $year = $request->year;
-
-    $students = Student::where('student_status_id',1)->count();
-    $staffs = Staff::count();
-    $balances = FeeBalance::sum('amount');
-    $paids = FeePayment::where('year',$year)->sum('paid_amount');
-    $required = FeePayment::where('year',$year)->sum('amount');
-    $debits = $required - $paids;
-
-
-    $subjects = Subject::count();
-    $teachers = Staff::where('role_id',2)->count();
+    try {
+      $year = $request->year;
     
-    ////attendance
-    $att_p = Attendance::where(['attend' => 1, 'year' => $year])->count();
-    $att_a = Attendance::where(['attend' => 0, 'year' => $year])->count();
+      ////attendance
+      $att_p = Attendance::where(['attend' => 1, 'year' => $year])->count();
+      $att_a = Attendance::where(['attend' => 0, 'year' => $year])->count();
 
-    $att_total = $att_a + $att_p;
+      $att_total = $att_a + $att_p;
 
-    $attendance = round(($att_p * 100)/$att_total,1);
+      if($att_p == 0){
+        return 0;
+      }
 
-    //return $balances;
+      if($att_total == 0){
+        return 0;
+      }else{
+        return round(($att_p * 100)/$att_total,1);
+      }
+    } catch (\Throwable $th) {
+      return 0;
+    }
 
-    $response = [
-        'success' => true,
-        'message' => "Request for this Fee was aleady been sent, so wait for approve",
-        'students' => $students,
-        'staffs' => $staffs,
-        'attendance' => $attendance,
-        'subjects' => $subjects,
-        'balances' => $balances,
-        'teachers' => $teachers,
-        'paids' => $paids,
-        'debits' => $debits
-    ];
-    return response()->json($response, 200);
-    
-   }
+}
+
 }
